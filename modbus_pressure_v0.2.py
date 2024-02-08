@@ -222,10 +222,10 @@ class GetPressure:
 
     def readPressure(self):
         try:
-            client1 = Device()
+            # client1 = Device()
             # self.pressure = client1.read_register(4)
             self.pressure = random.randint(0, 1000)
-            if self.pressure > 850:
+            if self.pressure > 750:
                 self.pressure = nan
             # print(self.pressure)
         except IOError:
