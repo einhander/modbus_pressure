@@ -40,7 +40,7 @@ if sys.argv[1:]:   # test if there are atleast 1 argument (beyond [0])
 else:
     arg = "None"
 
-class Analyticsapp(tk.Tk):
+class Pressureapp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -178,24 +178,21 @@ class GraphPage(tk.Frame):
 
 
 class Device( minimalmodbus.Instrument ):
-    def __init__(self, portname, slaveaddress):
-        # global arg
-        # if arg != "--debug":
+    def __init__(self, portname, slaveaddress ):
         minimalmodbus.Instrument.__init__(self, portname, slaveaddress)
+
+        # self = minimalmodbus.Instrument.__init__(self,port='/dev/ttyUSB0', slaveaddress=1, debug=False)  # port name, slave address (in decimal)
+        # self.serial.baudrate = 9600  # baudrate
+        # self.serial.bytesize = 8
+        # self.serial.parity   = serial.PARITY_NONE
+        # self.serial.stopbits = 1
+        # self.serial.timeout  = 0.05      # seconds
+        # self.address         = 1        # this is the slave address number
+        # self.mode = minimalmodbus.MODE_RTU # rtu or ascii mode
+        # self.clear_buffers_before_each_transaction = False
+
     def readPressure(self):
         return self.read_register(4)
-
-        self = minimalmodbus.Instrument('/dev/ttyUSB0', 1, debug=False)  # port name, slave address (in decimal)
-        self.serial.baudrate = 9600  # baudrate
-        self.serial.bytesize = 8
-        self.serial.parity   = serial.PARITY_NONE
-        self.serial.stopbits = 1
-        self.serial.timeout  = 0.05      # seconds
-        self.address         = 1        # this is the slave address number
-        self.mode = minimalmodbus.MODE_RTU # rtu or ascii mode
-        self.clear_buffers_before_each_transaction = True
-        # else:
-            # self = 
 
 
 class GetPressure:
@@ -222,11 +219,19 @@ class GetPressure:
 
     def readPressure(self):
         try:
-            # client1 = Device()
-            # self.pressure = client1.read_register(4)
-            self.pressure = random.randint(0, 1000)
-            if self.pressure > 750:
-                self.pressure = nan
+            pressureSensor = Device('/dev/ttyUSB0',1)
+            pressureSensor.serial.baudrate = 9600  # baudrate
+            pressureSensor.serial.bytesize = 8
+            pressureSensor.serial.parity   = serial.PARITY_NONE
+            pressureSensor.serial.stopbits = 1
+            pressureSensor.serial.timeout  = 0.05      # seconds
+
+            self.pressure = pressureSensor.readPressure()
+
+            # self.pressure = random.randint(0, 1000)
+            # if self.pressure > 750:
+            #     self.pressure = nan
+
             # print(self.pressure)
         except IOError:
             print("Failed to read from instrument")
@@ -263,7 +268,7 @@ class GetPressure:
 
 
 
-app = Analyticsapp()
+app = Pressureapp()
 app.geometry('500x400')
 # app.protocol("WM_DELETE_WINDOW", app.on_closing())
 app.mainloop()
