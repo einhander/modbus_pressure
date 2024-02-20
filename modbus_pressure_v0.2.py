@@ -34,6 +34,8 @@ LARGE_FONT = ("Verdana", 12)
 style.use("ggplot")
 
 pressureList = [0]
+Debug = None
+
 
 if sys.argv[1:]:   # test if there are atleast 1 argument (beyond [0])
     arg = sys.argv[1]
@@ -59,7 +61,7 @@ class Pressureapp(tk.Tk):
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame(StartPage)
+        self.show_frame(GraphPage)
 
 
         # self.protocol("WM_DELETE_WINDOW", self.on_closing())
@@ -76,6 +78,7 @@ class StartPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+
 
         self.labelCurP_var=tk.StringVar()
         self.labelMaxP_var=tk.StringVar()
@@ -104,6 +107,9 @@ class GraphPage(tk.Frame):
 
     def __init__(self, parent, controller, nb_points=360):
         tk.Frame.__init__(self, parent)
+
+        self.Start = False
+
         label = tk.Label(self, text="Давление разрушения", font=LARGE_FONT)
         label.pack(pady=10, padx=10, side='top')
 
@@ -136,8 +142,11 @@ class GraphPage(tk.Frame):
         button1 = ttk.Button(self, text="Сброс",
                              command=self.back)
         button1.pack(side='bottom')
+        self.button2 = ttk.Button(self, text="Старт",
+                             command=lambda : self.buttonClick())
+        self.button2.pack(side='bottom')
         self.canvas.get_tk_widget().pack(side='top', fill=tk.BOTH, expand=True)
-        self.animate()
+        # self.animate()
 
     def back(self, nb_points=360):
         global pressureList
@@ -145,8 +154,20 @@ class GraphPage(tk.Frame):
         pressureList = [0]
         lambda: controller.show_frame(StartPage)
 
+    def buttonClick(self):
+        # global Start
+        if not self.Start:
+            self.Start = True 
+            self.button2.config(text="Стоп")
+            self.animate()
+        else:
+            self.Start = False 
+            self.button2.config(text="Старт")
+            self.cancel()
+
     def animate(self):
         global pressureList
+
         # append new data point to the x and y data
         self.x_data.append(datetime.now())
         pressureCur = GetPressure()
@@ -173,8 +194,12 @@ class GraphPage(tk.Frame):
         # StartPage.new_text(' '.join(["Текущее значение:", str(pressureCur), "Бар"])) 
         # StartPage.labelMaxP.config(text = ' '.join(["Максимальное значение", str(max(pressureList)), "Бар"])) 
 
-        self.after(1000, self.animate)  # repeat after 1s
+        self._job = self.after(1000, self.animate)  # repeat after 1s
 
+    def cancel(self):
+        if self._job is not None:
+            self.after_cancel(self._job)
+            self._job = None
 
 
 class Device( minimalmodbus.Instrument ):
@@ -199,12 +224,16 @@ class GetPressure:
 
     def __init__(self):
 
-        # global start
+        global Debug
         # global pressureList
         # start = True
 
         # while start:
         self.pressure = self.readPressure()
+        if Debug:
+            self.pressure = random.randint(0, 100)
+            if self.pressure > 75:
+                self.pressure = nan
         # pressureList.append(pressure) 
         # pressure = str(random.randint(0, 100))
         # labelCurP.config(text = ' '.join(["Текущее значение:", str(pressure), "Бар"])) 
@@ -227,10 +256,6 @@ class GetPressure:
             pressureSensor.serial.timeout  = 0.05      # seconds
 
             self.pressure = pressureSensor.readPressure()
-
-            # self.pressure = random.randint(0, 1000)
-            # if self.pressure > 750:
-            #     self.pressure = nan
 
             # print(self.pressure)
         except IOError:
