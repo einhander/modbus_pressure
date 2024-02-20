@@ -294,6 +294,6 @@ class GetPressure:
 
 
 app = Pressureapp()
-app.geometry('500x400')
+app.geometry('700x600')
 # app.protocol("WM_DELETE_WINDOW", app.on_closing())
 app.mainloop()
