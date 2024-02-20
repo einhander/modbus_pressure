@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=ModBus Pressure
+Comment=Simple programm for pressure measurement
+Type=Application
+Exec=./pressure
+Icon=press
+StartupWMClass=ModBus_Pressure
+Categories=Science
