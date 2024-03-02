@@ -130,7 +130,7 @@ class GraphPage(tk.Frame):
         self.x_data = [dateTimeObj + timedelta(seconds=i) for i in range(nb_points)]
         self.y_data = [0 for i in range(nb_points)]
         # create the plot
-        self.plot = self.ax.plot(self.x_data, self.y_data, label='CPU')[0]
+        self.plot = self.ax.plot(self.x_data, self.y_data, label='Press')[0]
         self.ax.set_ylim(0, 100)
         self.ax.set_xlim(self.x_data[0], self.x_data[-1])
 
@@ -179,13 +179,14 @@ class GraphPage(tk.Frame):
             pressureCur = pressureList[-1]
         pressureList.append(float(pressureCur))
 
-        self.y_data.append(pressureCur)
+        self.y_data.append(float(pressureCur))
         # remove oldest data point
         self.x_data = self.x_data[1:]
         self.y_data = self.y_data[1:]
         #  update plot data
         self.plot.set_xdata(self.x_data)
         self.plot.set_ydata(self.y_data)
+        self.ax.set_ylim(0, (max(self.y_data))+10)
         self.ax.set_xlim(self.x_data[0], self.x_data[-1])
         self.canvas.draw_idle()  # redraw plot
         self.labelCurP.config(text = ' '.join(["Текущее значение:", str(pressureCur), "Бар"])) 
